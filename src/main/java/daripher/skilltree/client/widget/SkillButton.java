@@ -37,15 +37,14 @@ public class SkillButton extends Button {
   public boolean animated;
   public boolean searched;
 
-  public SkillButton(
-      Supplier<Float> animationFunc, float x, float y, PassiveSkill skill, OnPress pressFunc) {
+  public SkillButton(Supplier<Float> animationFunc, float x, float y, PassiveSkill skill) {
     super(
         (int) x,
         (int) y,
         skill.getButtonSize(),
         skill.getButtonSize(),
         Component.empty(),
-        pressFunc,
+        b -> {},
         Supplier::get);
     this.x = x;
     this.y = y;

@@ -22,9 +22,11 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.Attribute;
@@ -145,7 +147,7 @@ public class SkillTreeEditorScreen extends Screen {
 
   @Override
   public boolean mouseClicked(double mouseX, double mouseY, int button) {
-    return clickedWidget(mouseX, mouseY, button) || clickedSkill(mouseX, mouseY, button);
+    return clickedWidget(mouseX, mouseY, button) || clickedSkill(mouseX, mouseY);
   }
 
   private boolean clickedWidget(double mouseX, double mouseY, int button) {
@@ -159,10 +161,18 @@ public class SkillTreeEditorScreen extends Screen {
     return clicked;
   }
 
-  private boolean clickedSkill(double mouseX, double mouseY, int button) {
-    SkillButton skillAtMouse = getSkillAt(mouseX, mouseY);
-    if (skillAtMouse == null) return false;
-    return skillAtMouse.mouseClicked(skillAtMouse.x + 1, skillAtMouse.y + 1, button);
+  private boolean clickedSkill(double mouseX, double mouseY) {
+    SkillButton skill = getSkillAt(mouseX, mouseY);
+    if (skill == null) return false;
+    playButtonSound();
+    skillButtonPressed(skill);
+    return true;
+  }
+
+  private void playButtonSound() {
+    getMinecraft()
+        .getSoundManager()
+        .play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1f));
   }
 
   private Stream<EditBox> textFields() {
@@ -729,12 +739,7 @@ public class SkillTreeEditorScreen extends Screen {
 
   protected void addSkillButton(PassiveSkill skill) {
     SkillButton button =
-        new SkillButton(
-            () -> 0f,
-            getSkillButtonX(skill),
-            getSkillButtonY(skill),
-            skill,
-            b -> skillButtonPressed((SkillButton) b));
+        new SkillButton(() -> 0f, getSkillButtonX(skill), getSkillButtonY(skill), skill);
     addRenderableWidget(button);
     button.highlighted = true;
     skillButtons.put(skill.getId(), button);
