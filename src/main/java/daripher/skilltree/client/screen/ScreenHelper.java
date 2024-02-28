@@ -62,7 +62,7 @@ public class ScreenHelper {
   public static void renderSkillTooltip(
       SkillButton button, GuiGraphics graphics, float x, float y, int width, int height) {
     Font font = Minecraft.getInstance().font;
-    int maxWidth = (int) (width * 0.65);
+    int maxWidth = width - 10;
     List<MutableComponent> tooltip = new ArrayList<>();
     for (MutableComponent component : button.getSkillTooltip()) {
       if (font.width(component) > maxWidth) {
@@ -88,6 +88,8 @@ public class ScreenHelper {
     if (tooltipY + tooltipHeight + 6 > height) {
       tooltipY = height - tooltipHeight - 6;
     }
+    if (tooltipX < 5) tooltipX = 5;
+    if (tooltipY < 5) tooltipY = 5;
     graphics.pose().pushPose();
     graphics.pose().translate(tooltipX, tooltipY, 10);
     graphics.fill(1, 4, tooltipWidth - 1, tooltipHeight + 4, 0xDD000000);
