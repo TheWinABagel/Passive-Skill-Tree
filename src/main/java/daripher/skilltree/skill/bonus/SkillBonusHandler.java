@@ -195,12 +195,13 @@ public class SkillBonusHandler {
     DamageSource damageSource = player.level().damageSources().playerAttack(player);
     float critChance = getCritChance(player, damageSource, event.getEntity());
     if (player.getRandom().nextFloat() >= critChance) return;
-    float critMultiplier = getCritDamageMultiplier(player, damageSource, target);
-    event.setDamageModifier(event.getDamageModifier() + critMultiplier);
+    float critMultiplier = event.getDamageModifier();
+    critMultiplier += getCritDamageMultiplier(player, damageSource, target);
     if (!event.isVanillaCritical()) {
-      event.setDamageModifier(event.getDamageModifier() + 0.5F);
+      critMultiplier += 0.5f;
       event.setResult(Event.Result.ALLOW);
     }
+    event.setDamageModifier(critMultiplier);
   }
 
   @SubscribeEvent(priority = EventPriority.LOW)
@@ -210,13 +211,14 @@ public class SkillBonusHandler {
     if (!(event.getSource().getEntity() instanceof ServerPlayer player)) return;
     float critChance = getCritChance(player, event.getSource(), event.getEntity());
     if (player.getRandom().nextFloat() >= critChance) return;
-    float critMultiplier = getCritDamageMultiplier(player, event.getSource(), event.getEntity());
+    float critMultiplier = 1.5f;
+    critMultiplier += getCritDamageMultiplier(player, event.getSource(), event.getEntity());
     event.setAmount(event.getAmount() * critMultiplier);
   }
 
   private static float getCritDamageMultiplier(
       ServerPlayer player, DamageSource source, LivingEntity target) {
-    float multiplier = 1.5f;
+    float multiplier = 0f;
     for (CritDamageBonus bonus : getSkillBonuses(player, CritDamageBonus.class)) {
       multiplier += bonus.getDamageBonus(source, player, target);
     }
