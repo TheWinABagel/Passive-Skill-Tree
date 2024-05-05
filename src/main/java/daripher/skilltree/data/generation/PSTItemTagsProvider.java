@@ -23,6 +23,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class PSTItemTagsProvider extends ItemTagsProvider {
+  public static final ResourceLocation KNIVES = new ResourceLocation("forge", "tools/knives");
+
   public PSTItemTagsProvider(
       DataGenerator dataGenerator,
       CompletableFuture<HolderLookup.Provider> provider,
@@ -44,10 +46,9 @@ public class PSTItemTagsProvider extends ItemTagsProvider {
     add(PSTTags.QUIVERS, QuiverItem.class);
     add(PSTTags.NUGGETS_COPPER, PSTItems.COPPER_NUGGET.get());
     tag(PSTTags.JEWELRY).addTags(PSTTags.RINGS, PSTTags.NECKLACES);
-    tag(Tags.Items.TOOLS).addTags(PSTTags.TOOLS_MELEE_WEAPONS, PSTTags.TOOLS_DIGGERS);
-    tag(PSTTags.TOOLS_MELEE_WEAPONS).addTags(ItemTags.SWORDS, ItemTags.AXES, Tags.Items.TOOLS_TRIDENTS);
-	tag(PSTTags.TOOLS_DIGGERS).addTags(ItemTags.AXES, ItemTags.HOES, ItemTags.PICKAXES, ItemTags.SHOVELS)
-			.addOptionalTag(new ResourceLocation("forge", "tools/knives"));
+    tag(Tags.Items.TOOLS).addOptionalTag(KNIVES);
+    tag(PSTTags.MELEE_WEAPON).addTags(ItemTags.SWORDS, ItemTags.AXES, Tags.Items.TOOLS_TRIDENTS);
+    tag(PSTTags.RANGED_WEAPON).addTags(Tags.Items.TOOLS_BOWS, Tags.Items.TOOLS_CROSSBOWS);
   }
 
   private void add(TagKey<Item> itemTag, Class<? extends Item> itemClass) {

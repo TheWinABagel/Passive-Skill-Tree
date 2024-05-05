@@ -377,7 +377,7 @@
   "living_condition.skilltree.effect_amount.min.1": "%s если на %s есть Эффекты",
   "living_condition.skilltree.effect_amount.range": "%s если на %s от %d до %d Эффектов",
   "living_condition.skilltree.effect_amount.target.target": "Цели",
-  "living_condition.skilltree.effect_amount.target.you": "Вас есть",
+  "living_condition.skilltree.effect_amount.target.you": "Вас",
   "living_condition.skilltree.fishing": "%s если %s",
   "living_condition.skilltree.fishing.target.target": "Цель рыбачит",
   "living_condition.skilltree.fishing.target.you": "Вы рыбачите",

@@ -57,11 +57,11 @@ public class EquipmentCondition implements ItemCondition {
   }
 
   public static boolean isRangedWeapon(ItemStack stack) {
-    return isCrossbow(stack) || isBow(stack);
+    return isCrossbow(stack) || isBow(stack) || stack.is(PSTTags.RANGED_WEAPON);
   }
 
   public static boolean isMeleeWeapon(ItemStack stack) {
-    return isSword(stack) || isAxe(stack) || isTrident(stack) || stack.is(PSTTags.TOOLS_MELEE_WEAPONS);
+    return isSword(stack) || isAxe(stack) || isTrident(stack) || stack.is(PSTTags.MELEE_WEAPON);
   }
 
   public static boolean isLeggings(ItemStack stack) {
@@ -119,7 +119,7 @@ public class EquipmentCondition implements ItemCondition {
   }
 
   public static boolean isTool(ItemStack stack) {
-    return stack.getItem() instanceof DiggerItem || stack.is(PSTTags.TOOLS_DIGGERS);
+    return stack.getItem() instanceof DiggerItem || stack.is(Tags.Items.TOOLS);
   }
 
   public static boolean isHoe(ItemStack stack) {

@@ -1,6 +1,8 @@
 {
   "values": [
-    "#forge:tools/melee_weapons",
-    "#forge:tools/diggers"
+    {
+      "id": "#forge:tools/knives",
+      "required": false
+    }
   ]
 }
