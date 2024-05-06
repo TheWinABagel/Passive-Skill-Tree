@@ -1,5 +1,6 @@
 package daripher.skilltree.client.screen;
 
+import com.google.common.collect.Streams;
 import com.mojang.blaze3d.systems.RenderSystem;
 import daripher.skilltree.capability.skill.IPlayerSkills;
 import daripher.skilltree.capability.skill.PlayerSkillsProvider;
@@ -151,7 +152,7 @@ public class SkillTreeScreen extends Screen {
     }
     outerLoop:
     for (SkillButton button : skillButtons.values()) {
-      for (MutableComponent component : button.getSkillTooltip()) {
+      for (MutableComponent component : button.getSkillTooltip(skillTree)) {
         if (component.getString().toLowerCase().contains(search.toLowerCase())) {
           button.searched = true;
           continue outerLoop;
@@ -193,7 +194,7 @@ public class SkillTreeScreen extends Screen {
     if (skill == null) return;
     float tooltipX = mouseX + (prevMouseX - mouseX) * partialTick;
     float tooltipY = mouseY + (prevMouseY - mouseY) * partialTick;
-    ScreenHelper.renderSkillTooltip(skill, graphics, tooltipX, tooltipY, width, height);
+    ScreenHelper.renderSkillTooltip(skillTree, skill, graphics, tooltipX, tooltipY, width, height);
   }
 
   private void renderSkills(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
@@ -348,7 +349,7 @@ public class SkillTreeScreen extends Screen {
     addRenderableWidget(button);
     skillButtons.put(skillId, button);
     if (skill.isStartingPoint()) startingPoints.add(button);
-    if (isSkillLearned(skill)) button.highlighted = true;
+    if (isSkillLearned(skill)) button.skillLearned = true;
     if (maxScrollX < Mth.abs(skill.getPositionX()))
       maxScrollX = (int) Mth.abs(skill.getPositionX());
     if (maxScrollY < Mth.abs(skill.getPositionY()))
@@ -400,12 +401,43 @@ public class SkillTreeScreen extends Screen {
   private void highlightSkillsThatCanBeLearned() {
     if (skillPoints == 0) return;
     if (learnedSkills.isEmpty() && newlyLearnedSkills.isEmpty()) {
-      startingPoints.forEach(SkillButton::setAnimated);
+      startingPoints.forEach(SkillButton::setCanLearn);
       return;
     }
     if (learnedSkills.size() + newlyLearnedSkills.size() >= SkillTreeClientData.max_skill_points)
       return;
-    skillConnections.forEach(SkillConnection::setActive);
+    skillConnections.forEach(
+        connection -> {
+          SkillButton button1 = connection.getFirstButton();
+          SkillButton button2 = connection.getSecondButton();
+          if (button1.skillLearned == button2.skillLearned) return;
+          if (connection.getType() != SkillConnection.Type.ONE_WAY) {
+            if (!button1.skillLearned && canLearnSkill(button1.skill)) {
+              button1.setCanLearn();
+              button1.setActive();
+            }
+          }
+          if (!button2.skillLearned && canLearnSkill(button2.skill)) {
+            button2.setCanLearn();
+            button2.setActive();
+          }
+        });
+  }
+
+  private boolean canLearnSkill(PassiveSkill skill) {
+    for (String tag : skill.getTags()) {
+      int limit = skillTree.getSkillLimitations().get(tag);
+      if (limit > 0 && getLearnedSkillsWithTag(tag) >= limit) return false;
+    }
+    return true;
+  }
+
+  private long getLearnedSkillsWithTag(String tag) {
+    return Streams.concat(learnedSkills.stream(), newlyLearnedSkills.stream())
+        .map(SkillsReloader::getSkillById)
+        .filter(Objects::nonNull)
+        .filter(skill -> skill.getTags().contains(tag))
+        .count();
   }
 
   private void confirmLearnSkills() {
@@ -457,7 +489,7 @@ public class SkillTreeScreen extends Screen {
         return;
       }
     }
-    if (button.animated) {
+    if (button.canLearn) {
       skillPoints--;
       newlyLearnedSkills.add(skill.getId());
       rebuildWidgets();

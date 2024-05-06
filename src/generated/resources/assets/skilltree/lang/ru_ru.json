@@ -420,6 +420,7 @@
   "recipe.skilltree.potion_mixing.info": "(Объедините два разных зелья на верстаке что бы создать микстуру)",
   "recipe.skilltree.weapon_poisoning": "Отравление Оружия",
   "recipe.skilltree.weapon_poisoning.info": "(Объедините оружие ближнего боя и вредящее зелье на верстаке что бы отравить оружие)",
+  "skill.limitation": "Ограничение: %s",
   "skill.skilltree.alchemist_class.name": "Алхимик",
   "skill.skilltree.alchemist_crafting_1.name": "Усиление создаваемых зелий",
   "skill.skilltree.alchemist_crafting_2.name": "Усиление создаваемых зелий",
