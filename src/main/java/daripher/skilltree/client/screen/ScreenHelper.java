@@ -20,11 +20,11 @@ public class ScreenHelper {
       GuiGraphics graphics, String text, int x, int y, int color) {
     Font font = Minecraft.getInstance().font;
     x -= font.width(text) / 2;
-    graphics.drawString(font, text, x + 1, y, 0);
-    graphics.drawString(font, text, x - 1, y, 0);
-    graphics.drawString(font, text, x, y + 1, 0);
-    graphics.drawString(font, text, x, y - 1, 0);
-    graphics.drawString(font, text, x, y, color);
+    graphics.drawString(font, text, x + 1, y, 0, false);
+    graphics.drawString(font, text, x - 1, y, 0, false);
+    graphics.drawString(font, text, x, y + 1, 0, false);
+    graphics.drawString(font, text, x, y - 1, 0, false);
+    graphics.drawString(font, text, x, y, color, false);
   }
 
   public static void drawRectangle(
