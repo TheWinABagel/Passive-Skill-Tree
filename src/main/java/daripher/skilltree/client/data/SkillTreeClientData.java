@@ -73,6 +73,7 @@ public class SkillTreeClientData {
       sendSystemMessage("Try removing files from folder", ChatFormatting.DARK_RED);
       sendSystemMessage("");
       sendSystemMessage(getSavesFolder().getPath(), ChatFormatting.RED);
+      e.printStackTrace();
       return null;
     }
   }
@@ -127,6 +128,7 @@ public class SkillTreeClientData {
       skillTree = readFromFile(PassiveSkillTree.class, getSkillTreeSaveFile(treeId));
     } catch (IOException e) {
       e.printStackTrace();
+      sendSystemMessage("Can't load editor tree " + treeId, ChatFormatting.DARK_RED);
       throw new RuntimeException("Can't load editor tree " + treeId);
     }
     if (skillTree == null) {
@@ -151,6 +153,7 @@ public class SkillTreeClientData {
       skill = readFromFile(PassiveSkill.class, getSkillSaveFile(skillId));
     } catch (IOException e) {
       e.printStackTrace();
+      sendSystemMessage("Can't load editor skill " + skillId, ChatFormatting.DARK_RED);
       throw new RuntimeException("Can't load editor skill " + skillId);
     }
     EDITOR_PASSIVE_SKILLS.put(skillId, skill);
