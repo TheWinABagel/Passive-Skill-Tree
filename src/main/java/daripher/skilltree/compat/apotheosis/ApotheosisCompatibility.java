@@ -9,17 +9,18 @@ import daripher.skilltree.skill.bonus.item.ItemBonus;
 import dev.shadowsoffire.apotheosis.Apoth;
 import dev.shadowsoffire.apotheosis.Apotheosis;
 import dev.shadowsoffire.apotheosis.adventure.affix.AffixHelper;
-import dev.shadowsoffire.apotheosis.adventure.affix.socket.SocketHelper;
-import dev.shadowsoffire.apotheosis.adventure.affix.socket.gem.Gem;
-import dev.shadowsoffire.apotheosis.adventure.affix.socket.gem.GemInstance;
-import dev.shadowsoffire.apotheosis.adventure.affix.socket.gem.GemItem;
-import dev.shadowsoffire.apotheosis.adventure.affix.socket.gem.GemRegistry;
-import dev.shadowsoffire.apotheosis.adventure.affix.socket.gem.bonus.GemBonus;
 import dev.shadowsoffire.apotheosis.adventure.event.GetItemSocketsEvent;
 import dev.shadowsoffire.apotheosis.adventure.loot.GemLootPoolEntry;
 import dev.shadowsoffire.apotheosis.adventure.loot.LootCategory;
 import dev.shadowsoffire.apotheosis.adventure.loot.LootRarity;
 import dev.shadowsoffire.apotheosis.adventure.loot.RarityRegistry;
+import dev.shadowsoffire.apotheosis.adventure.socket.SocketHelper;
+import dev.shadowsoffire.apotheosis.adventure.socket.SocketedGems;
+import dev.shadowsoffire.apotheosis.adventure.socket.gem.Gem;
+import dev.shadowsoffire.apotheosis.adventure.socket.gem.GemInstance;
+import dev.shadowsoffire.apotheosis.adventure.socket.gem.GemItem;
+import dev.shadowsoffire.apotheosis.adventure.socket.gem.GemRegistry;
+import dev.shadowsoffire.apotheosis.adventure.socket.gem.bonus.GemBonus;
 import dev.shadowsoffire.placebo.reload.DynamicHolder;
 import java.util.*;
 import java.util.function.Consumer;
@@ -45,9 +46,13 @@ public enum ApotheosisCompatibility {
     forgeEventBus.addListener(this::addItemSockets);
   }
 
-  public List<ItemStack> getGems(ItemStack stack, int sockets) {
-    if (sockets == 0 || stack.isEmpty()) return Collections.emptyList();
-    List<ItemStack> gems = NonNullList.withSize(sockets, ItemStack.EMPTY);
+  public SocketedGems getGems(ItemStack stack, int sockets) {
+    if (sockets == 0 || stack.isEmpty()) return SocketedGems.EMPTY;
+
+    LootCategory cat = LootCategory.forItem(stack);
+    if (cat.isNone()) return SocketedGems.EMPTY;
+    List<GemInstance> gems = NonNullList.withSize(sockets, GemInstance.EMPTY);
+
     int i = 0;
     CompoundTag afxData = stack.getTagElement(SocketHelper.AFFIX_DATA);
     if (afxData != null && afxData.contains(SocketHelper.GEMS)) {
@@ -55,26 +60,28 @@ public enum ApotheosisCompatibility {
       for (Tag tag : gemData) {
         ItemStack gemStack = ItemStack.of((CompoundTag) tag);
         gemStack.setCount(1);
-        if (GemInstance.unsocketed(gemStack).isValidUnsocketed()) {
-          gems.set(i++, gemStack);
+        GemInstance inst = GemInstance.socketed(stack, gemStack);
+        if (inst.isValid()) {
+          gems.set(i++, inst);
         }
         if (i >= sockets) break;
       }
     }
-    return ImmutableList.copyOf(gems);
+
+    return new SocketedGems(ImmutableList.copyOf(gems));
   }
 
   public List<? extends ItemBonus<?>> getGemBonuses(ItemStack stack) {
     List<ItemBonus<?>> list = new ArrayList<>();
-    for (ItemStack gemStack : SocketHelper.getGems(stack)) {
-      DynamicHolder<Gem> gem = GemItem.getGem(gemStack);
+    for (GemInstance gemInstance : SocketHelper.getGems(stack)) {
+      DynamicHolder<Gem> gem = gemInstance.gem();
       if (!gem.isBound()) continue;
       List<GemBonus> bonuses = gem.get().getBonuses();
       for (GemBonus gemBonus : bonuses) {
         Set<LootCategory> lootCategories = gemBonus.getGemClass().types();
         if (lootCategories.stream().noneMatch(c -> c.isValid(stack))) continue;
         if (gemBonus instanceof PSTGemBonus aBonus) {
-          list.add(aBonus.getBonus(gemStack));
+          list.add(aBonus.getBonus(gemInstance.gemStack()));
           break;
         }
       }
@@ -82,7 +89,7 @@ public enum ApotheosisCompatibility {
     return list;
   }
 
-  public List<ItemStack> getGems(ItemStack stack) {
+  public SocketedGems getGems(ItemStack stack) {
     return getGems(stack, getSockets(stack, null));
   }
 
@@ -96,16 +103,13 @@ public enum ApotheosisCompatibility {
   }
 
   public boolean hasEmptySockets(ItemStack stack, Player player) {
-    return getGems(stack, getSockets(stack, player)).stream()
-        .map(GemItem::getGem)
-        .map(DynamicHolder::getOptional)
-        .anyMatch(Optional::isEmpty);
+    return getGems(stack, getSockets(stack, player)).gems().stream().anyMatch(g -> !g.isValid());
   }
 
   public int getFirstEmptySocket(ItemStack stack, int sockets) {
-    List<ItemStack> gems = getGems(stack, sockets);
+    SocketedGems gems = getGems(stack, sockets);
     for (int socket = 0; socket < sockets; socket++) {
-      if (GemItem.getGem(gems.get(socket)).getOptional().isEmpty()) {
+      if (gems.get(socket).isValid()) {
         return socket;
       }
     }
@@ -139,7 +143,6 @@ public enum ApotheosisCompatibility {
   }
 
   private void addItemSockets(GetItemSocketsEvent event) {
-    if (!Apoth.Affixes.SOCKET.isBound()) return;
     ItemStack stack = event.getStack();
     if (!ItemHelper.hasSockets(stack)) return;
     int sockets = event.getSockets();

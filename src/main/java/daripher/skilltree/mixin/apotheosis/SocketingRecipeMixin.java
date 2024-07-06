@@ -3,9 +3,11 @@ package daripher.skilltree.mixin.apotheosis;
 import daripher.skilltree.compat.apotheosis.ApotheosisCompatibility;
 import daripher.skilltree.container.ContainerHelper;
 import daripher.skilltree.entity.player.PlayerHelper;
-import dev.shadowsoffire.apotheosis.adventure.affix.socket.SocketHelper;
-import dev.shadowsoffire.apotheosis.adventure.affix.socket.SocketingRecipe;
 import java.util.List;
+
+import dev.shadowsoffire.apotheosis.adventure.socket.SocketHelper;
+import dev.shadowsoffire.apotheosis.adventure.socket.SocketedGems;
+import dev.shadowsoffire.apotheosis.adventure.socket.SocketingRecipe;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -22,7 +24,7 @@ public class SocketingRecipeMixin {
           @At(
               value = "INVOKE",
               target =
-                  "Ldev/shadowsoffire/apotheosis/adventure/affix/socket/SocketHelper;hasEmptySockets(Lnet/minecraft/world/item/ItemStack;)Z"))
+                  "Ldev/shadowsoffire/apotheosis/adventure/socket/SocketHelper;hasEmptySockets(Lnet/minecraft/world/item/ItemStack;)Z"))
   private boolean checkPlayerSockets(ItemStack stack, Container container, Level level) {
     Player player = ContainerHelper.getViewingPlayer(container);
     if (player == null) return SocketHelper.hasEmptySockets(stack);
@@ -50,7 +52,7 @@ public class SocketingRecipeMixin {
           @At(
               value = "INVOKE",
               target =
-                  "Ldev/shadowsoffire/apotheosis/adventure/affix/socket/SocketHelper;getFirstEmptySocket(Lnet/minecraft/world/item/ItemStack;)I"))
+                  "Ldev/shadowsoffire/apotheosis/adventure/socket/SocketHelper;getFirstEmptySocket(Lnet/minecraft/world/item/ItemStack;)I"))
   private int applyPlayerSockets(ItemStack stack, Container container) {
     Player player = ContainerHelper.getViewingPlayer(container);
     if (player == null) return SocketHelper.getFirstEmptySocket(stack);
@@ -64,8 +66,8 @@ public class SocketingRecipeMixin {
           @At(
               value = "INVOKE",
               target =
-                  "Ldev/shadowsoffire/apotheosis/adventure/affix/socket/SocketHelper;getGems(Lnet/minecraft/world/item/ItemStack;)Ljava/util/List;"))
-  private List<ItemStack> applyPlayerSockets2(ItemStack stack, Container container) {
+                  "Ldev/shadowsoffire/apotheosis/adventure/socket/SocketHelper;getGems(Lnet/minecraft/world/item/ItemStack;)Ldev/shadowsoffire/apotheosis/adventure/socket/SocketedGems;"))
+  private SocketedGems applyPlayerSockets2(ItemStack stack, Container container) {
     Player player = ContainerHelper.getViewingPlayer(container);
     if (player == null) return SocketHelper.getGems(stack);
     int sockets = ApotheosisCompatibility.INSTANCE.getSockets(stack, player);

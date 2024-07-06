@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import dev.shadowsoffire.apotheosis.adventure.socket.gem.GemInstance;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.BakedModel;
@@ -147,7 +149,7 @@ public class GemItem extends Item {
 
   public static List<ItemStack> getGems(ItemStack stack) {
     if (SkillTreeMod.apotheosisEnabled()) {
-      return ApotheosisCompatibility.INSTANCE.getGems(stack);
+      return ApotheosisCompatibility.INSTANCE.getGems(stack).gems().stream().map(GemInstance::gemStack).toList();
     }
     if (!stack.hasTag()) return List.of();
     return stack.getOrCreateTag().getList("gems", Tag.TAG_STRING).stream()
