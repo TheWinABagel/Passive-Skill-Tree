@@ -8,6 +8,7 @@ import java.util.List;
 import dev.shadowsoffire.apotheosis.adventure.socket.SocketHelper;
 import dev.shadowsoffire.apotheosis.adventure.socket.SocketedGems;
 import dev.shadowsoffire.apotheosis.adventure.socket.SocketingRecipe;
+import dev.shadowsoffire.apotheosis.adventure.socket.gem.GemInstance;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -42,7 +43,7 @@ public class SocketingRecipeMixin {
     if (player == null) return gems.set(index, gem);
     ItemStack result = container.getItem(1);
     float power = PlayerHelper.getGemPower(player, result);
-    ((ItemStack) gem).getOrCreateTag().putFloat("gem_power", power);
+    ((GemInstance) gem).gemStack().getOrCreateTag().putFloat("gem_power", power);
     return gems.set(index, gem);
   }
 

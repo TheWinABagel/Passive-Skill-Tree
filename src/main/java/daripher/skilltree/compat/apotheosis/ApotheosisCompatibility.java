@@ -109,7 +109,7 @@ public enum ApotheosisCompatibility {
   public int getFirstEmptySocket(ItemStack stack, int sockets) {
     SocketedGems gems = getGems(stack, sockets);
     for (int socket = 0; socket < sockets; socket++) {
-      if (gems.get(socket).isValid()) {
+      if (!gems.get(socket).isValid()) {
         return socket;
       }
     }
@@ -117,7 +117,7 @@ public enum ApotheosisCompatibility {
   }
 
   public void createGemStack(
-      Consumer<ItemStack> consumer, LootContext context, ResourceLocation gemTypeId) {
+          Consumer<ItemStack> consumer, LootContext context, ResourceLocation gemTypeId) {
     Player player = GemLootPoolEntry.findPlayer(context);
     if (player == null) return;
     ItemStack gemStack = getGemStack(gemTypeId);
